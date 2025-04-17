@@ -13,26 +13,25 @@ import com.chargebee.android.network.ReceiptDetail
 import com.chargebee.android.reactnative.models.*
 import com.chargebee.android.reactnative.models.toMap
 import com.chargebee.android.reactnative.utils.*
-import com.chargebee.android.reactnative.utils.convertArrayToWritableArray
-import com.chargebee.android.reactnative.utils.convertAuthenticationDetailToDictionary
-import com.chargebee.android.reactnative.utils.convertEntitlementsToDictionary
-import com.chargebee.android.reactnative.utils.convertListToWritableArray
-import com.chargebee.android.reactnative.utils.convertPurchaseResultToDictionary
-import com.chargebee.android.reactnative.utils.convertQueryParamsToArray
-import com.chargebee.android.reactnative.utils.convertReadableArray
-import com.chargebee.android.reactnative.utils.convertReadableMapToCustomer
-import com.chargebee.android.reactnative.utils.convertRestoredSubscriptionsToDictionary
-import com.chargebee.android.reactnative.utils.convertSubscriptionsToDictionary
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.module.annotations.ReactModule
 import java.lang.RuntimeException
 
-class ChargebeeReactNativeModule internal constructor(context: ReactApplicationContext) :
-  ChargebeeReactNativeSpec(context) {
+@ReactModule(name = ChargebeeReactNativeModule.NAME)
+class ChargebeeReactNativeModule internal constructor(reactContext: ReactApplicationContext) :
+  ChargebeeReactNativeSpec(reactContext) {
 
+  companion object {
+    const val NAME = "ChargebeeReactNative"
+  }
+
+  private val reactContext: ReactApplicationContext
+    get() = reactApplicationContext
+  
   override fun getName(): String {
     return NAME
   }
@@ -44,7 +43,7 @@ class ChargebeeReactNativeModule internal constructor(context: ReactApplicationC
     sdkKey: String,
     promise: Promise
   ) {
-    val packageName = currentActivity?.packageName ?: ""
+    val packageName = reactContext.currentActivity?.packageName ?: ""
     Chargebee.environment = "cb_rn_android_sdk"
     Chargebee.configure(site, publishableApiKey, true, sdkKey, packageName) {
       when (it) {
@@ -90,7 +89,7 @@ class ChargebeeReactNativeModule internal constructor(context: ReactApplicationC
 
   @ReactMethod
   override fun retrieveProducts(productIds: ReadableArray, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactContext.currentActivity
     activity?.let {
       CBPurchase.retrieveProducts(it, convertReadableArray(productIds),
         object : CBCallback.ListProductsCallback<ArrayList<CBProduct>> {
@@ -132,7 +131,7 @@ class ChargebeeReactNativeModule internal constructor(context: ReactApplicationC
 
   @ReactMethod
   override fun purchaseProduct(productId: String, customer: ReadableMap, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactContext.currentActivity
     activity?.let {
       val productIds = arrayListOf(productId)
       CBPurchase.retrieveProducts(it, productIds,
@@ -195,7 +194,7 @@ class ChargebeeReactNativeModule internal constructor(context: ReactApplicationC
 
   @ReactMethod
   override fun purchaseNonSubscriptionProduct(productId: String, productType: String, customer: ReadableMap, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactContext.currentActivity
     activity?.let {
       val productIds = arrayListOf(productId)
       CBPurchase.retrieveProducts(it, productIds,
@@ -279,7 +278,7 @@ class ChargebeeReactNativeModule internal constructor(context: ReactApplicationC
 
   @ReactMethod
   override fun restorePurchases(includeInactivePurchases: Boolean, customer: ReadableMap, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactContext.currentActivity
     activity?.let {
       val customer = convertReadableMapToCustomer(customer)
       CBPurchase.restorePurchases(it, customer, includeInactivePurchases, object :
@@ -303,7 +302,7 @@ class ChargebeeReactNativeModule internal constructor(context: ReactApplicationC
 
   @ReactMethod
   override fun validateReceipt(productId: String, customer: ReadableMap, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactContext.currentActivity
     activity?.let {
       val productIds = arrayListOf(productId)
       CBPurchase.retrieveProducts(it, productIds,
@@ -366,7 +365,7 @@ class ChargebeeReactNativeModule internal constructor(context: ReactApplicationC
 
   @ReactMethod
   override fun validateReceiptForNonSubscriptions(productId: String, productType: String, customer: ReadableMap, promise: Promise) {
-    val activity = currentActivity
+    val activity = reactContext.currentActivity
     activity?.let {
       val productIds = arrayListOf(productId)
       CBPurchase.retrieveProducts(it, productIds,
@@ -457,9 +456,5 @@ class ChargebeeReactNativeModule internal constructor(context: ReactApplicationC
         }
       }
     }
-  }
-
-  companion object {
-    const val NAME = "ChargebeeReactNative"
   }
 }

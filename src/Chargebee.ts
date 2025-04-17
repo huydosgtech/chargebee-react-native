@@ -26,7 +26,7 @@ const LINKING_ERROR =
 const isTurboModuleEnabled = global.__turboModuleProxy != null;
 
 const ChargebeeReactNativeModule = isTurboModuleEnabled
-  ? require('./NativeChargebeeReactNative').default
+  ? require('./ChargebeeNativeComponent').default
   : NativeModules.ChargebeeReactNative;
 
 const ChargebeeReactNative = ChargebeeReactNativeModule

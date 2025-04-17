@@ -11,6 +11,7 @@ import type {
 } from './Purchases';
 
 export interface Spec extends TurboModule {
+  readonly getConstants: () => {};
   configure(
     site: string,
     publishableApiKey: string,
